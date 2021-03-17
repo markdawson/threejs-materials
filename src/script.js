@@ -82,6 +82,8 @@ const scene = new THREE.Scene()
 // material.alphaMap = doorAlphaTexture
 // material.transparent = true
 
+const our_meshes = [];
+
 const material = new THREE.MeshStandardMaterial({color: 'white'})
 material.metalness = 0.7
 material.roughness = 0.2
@@ -96,20 +98,24 @@ gui.add(material, 'aoMapIntensity').min(0).max(10).step(0.1)
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material)
 sphere.position.set(-1.5, 0, 0)
 
-sphere.geometry.setAttribute(
-  'uv2',
-  new THREE.BufferAttribute(sphere.geometry.attributes.uv.array, 2)
-)
+
+our_meshes.push(sphere)
+
+const sphere2 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material)
+sphere2.position.set(-1.5, 2, 0)
+
+
+
+
+our_meshes.push(sphere2)
+
 
 const plane = new THREE.Mesh(
   new THREE.PlaneGeometry(1, 1, 100, 100),
   material
 )
 
-plane.geometry.setAttribute(
-  'uv2',
-  new THREE.BufferAttribute(plane.geometry.attributes.uv.array, 2)
-)
+our_meshes.push(plane)
 
 const torus = new THREE.Mesh(
   new THREE.TorusGeometry(0.3, 0.2, 64, 128),
@@ -117,12 +123,8 @@ const torus = new THREE.Mesh(
 )
 torus.position.set(1.5, 0, 0)
 
-torus.geometry.setAttribute(
-  'uv2',
-  new THREE.BufferAttribute(torus.geometry.attributes.uv.array, 2)
-)
-
-scene.add(sphere, plane, torus)
+our_meshes.push(torus)
+scene.add(sphere, sphere2)
 
 /**
  * Lights
@@ -179,6 +181,30 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
+ * Utilities
+ */
+const areIntersecting = (mesh1, mesh2) => {
+
+  mesh1.geometry.computeBoundingBox();
+  mesh2.geometry.computeBoundingBox();
+
+var boundingBox1 = new THREE.Box3();
+var boundingBox2 = new THREE.Box3();
+boundingBox1.copy( mesh1.geometry.boundingBox );
+boundingBox2.copy( mesh2.geometry.boundingBox );
+
+mesh1.updateMatrixWorld( true ); // ensure world matrix is up to date
+mesh2.updateMatrixWorld( true ); // ensure world matrix is up to date
+boundingBox1.applyMatrix4( mesh1.matrixWorld );
+boundingBox2.applyMatrix4( mesh2.matrixWorld );
+
+console.log( boundingBox1.min.x);
+console.log( boundingBox2.min.x);
+
+  return boundingBox1.intersectsBox(boundingBox2);
+}
+
+/**
  * Animate
  */
 const clock = new THREE.Clock()
@@ -186,23 +212,29 @@ const clock = new THREE.Clock()
 const tick = () => {
   const elapsedTime = clock.getElapsedTime()
 
+
+  
   // Update objects
   sphere.rotation.y = elapsedTime * 0.1
-  plane.rotation.y = elapsedTime * 0.1
-  torus.rotation.y = elapsedTime * 0.1
-
   sphere.rotation.x = elapsedTime * 0.15
-  plane.rotation.x = elapsedTime * 0.15
-  torus.rotation.x = elapsedTime * 0.15
+
+  sphere2.position.x = Math.sin(elapsedTime)
+  sphere2.position.y = Math.cos(elapsedTime)
+  sphere2.position.z = -elapsedTime * 0.1
+  console.log(areIntersecting(sphere, sphere2))
 
   // Update controls
   controls.update()
+
+
 
   // Render
   renderer.render(scene, camera)
 
   // Call tick again on the next frame
-  window.requestAnimationFrame(tick)
+  if (elapsedTime < 10) {
+  window.requestAnimationFrame(tick) }
 }
+
 
 tick()
