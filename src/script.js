@@ -28,12 +28,12 @@ gradientTexture.magFilter = THREE.NearestFilter
 gradientTexture.generateMipmaps = false
 
 const environmentMapTexture = cubeTextureLoader.load([
-  '/textures/environmentMaps/0/px.jpg',
-  '/textures/environmentMaps/0/nx.jpg',
-  '/textures/environmentMaps/0/py.jpg',
-  '/textures/environmentMaps/0/ny.jpg',
-  '/textures/environmentMaps/0/pz.jpg',
-  '/textures/environmentMaps/0/nz.jpg'
+    '/textures/environmentMaps/0/px.jpg',
+    '/textures/environmentMaps/0/nx.jpg',
+    '/textures/environmentMaps/0/py.jpg',
+    '/textures/environmentMaps/0/ny.jpg',
+    '/textures/environmentMaps/0/pz.jpg',
+    '/textures/environmentMaps/0/nz.jpg'
 ])
 
 /**
@@ -82,9 +82,9 @@ const scene = new THREE.Scene()
 // material.alphaMap = doorAlphaTexture
 // material.transparent = true
 
-const our_meshes = [];
+const our_meshes = []
 
-const material = new THREE.MeshStandardMaterial({color: 'white'})
+const material = new THREE.MeshStandardMaterial({ color: 'white' })
 material.metalness = 0.7
 material.roughness = 0.2
 material.envMap = environmentMapTexture
@@ -93,33 +93,26 @@ gui.add(material, 'metalness').min(0).max(1).step(0.01)
 gui.add(material, 'roughness').min(0).max(1).step(0.01)
 gui.add(material, 'aoMapIntensity').min(0).max(10).step(0.1)
 
-
-
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material)
 sphere.position.set(-1.5, 0, 0)
-
 
 our_meshes.push(sphere)
 
 const sphere2 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material)
 sphere2.position.set(-1.5, 2, 0)
 
-
-
-
 our_meshes.push(sphere2)
 
-
 const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(1, 1, 100, 100),
-  material
+    new THREE.PlaneGeometry(1, 1, 100, 100),
+    material
 )
 
 our_meshes.push(plane)
 
 const torus = new THREE.Mesh(
-  new THREE.TorusGeometry(0.3, 0.2, 64, 128),
-  material
+    new THREE.TorusGeometry(0.3, 0.2, 64, 128),
+    material
 )
 torus.position.set(1.5, 0, 0)
 
@@ -139,22 +132,22 @@ scene.add(pointLight)
  * Sizes
  */
 const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight
+    width: window.innerWidth,
+    height: window.innerHeight
 }
 
 window.addEventListener('resize', () => {
-  // Update sizes
-  sizes.width = window.innerWidth
-  sizes.height = window.innerHeight
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
 
-  // Update camera
-  camera.aspect = sizes.width / sizes.height
-  camera.updateProjectionMatrix()
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
 
-  // Update renderer
-  renderer.setSize(sizes.width, sizes.height)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
 /**
@@ -175,7 +168,7 @@ controls.enableDamping = true
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-  canvas: canvas
+    canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -185,23 +178,50 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const areIntersecting = (mesh1, mesh2) => {
 
-  mesh1.geometry.computeBoundingBox();
-  mesh2.geometry.computeBoundingBox();
+    mesh1.geometry.computeBoundingBox()
+    mesh2.geometry.computeBoundingBox()
 
-var boundingBox1 = new THREE.Box3();
-var boundingBox2 = new THREE.Box3();
-boundingBox1.copy( mesh1.geometry.boundingBox );
-boundingBox2.copy( mesh2.geometry.boundingBox );
+    var boundingBox1 = new THREE.Box3()
+    var boundingBox2 = new THREE.Box3()
+    boundingBox1.copy(mesh1.geometry.boundingBox)
+    boundingBox2.copy(mesh2.geometry.boundingBox)
 
-mesh1.updateMatrixWorld( true ); // ensure world matrix is up to date
-mesh2.updateMatrixWorld( true ); // ensure world matrix is up to date
-boundingBox1.applyMatrix4( mesh1.matrixWorld );
-boundingBox2.applyMatrix4( mesh2.matrixWorld );
+    mesh1.updateMatrixWorld(true) // ensure world matrix is up to date
+    mesh2.updateMatrixWorld(true) // ensure world matrix is up to date
+    boundingBox1.applyMatrix4(mesh1.matrixWorld)
+    boundingBox2.applyMatrix4(mesh2.matrixWorld)
 
-console.log( boundingBox1.min.x);
-console.log( boundingBox2.min.x);
+// console.log( boundingBox1.min.x);
+// console.log( boundingBox2.min.x);
 
-  return boundingBox1.intersectsBox(boundingBox2);
+    return boundingBox1.intersectsBox(boundingBox2)
+}
+
+const spawnedSpheres = []
+
+const spawnChild = () => {
+    const newMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 64, 64),
+        material
+    )
+
+    const anchorPos = {
+        x: (Math.random() - 0.5) * 5,
+        y: (Math.random() - 0.5) * 5,
+        z: (Math.random() - 0.5) * 5
+    }
+
+    newMesh.visible = false
+    scene.add(newMesh)
+
+    spawnedSpheres.push(
+        {
+            mesh: newMesh,
+            anchorPosition: anchorPos
+        })
+
+    console.log(spawnedSpheres)
+
 }
 
 /**
@@ -209,32 +229,66 @@ console.log( boundingBox2.min.x);
  */
 const clock = new THREE.Clock()
 
+let wasOverlapping = false
+
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime()
+    const elapsedTime = clock.getElapsedTime()
 
+    // Animate Spawned Spheres
+    for (const spawnedSphere of spawnedSpheres) {
+        // const rotationVec = new THREE.Vector3(
+        //     Math.sin(elapsedTime),
+        //     Math.cos(elapsedTime),
+        //     0
+        // )
+        // spawnedSphere.mesh.geometry.position = rotationVec + spawnedSphere.position
+        spawnedSphere.mesh.position.set(
+            Math.sin(elapsedTime) + spawnedSphere.anchorPosition.x,
+            Math.cos(elapsedTime) + spawnedSphere.anchorPosition.y,
+            spawnedSphere.anchorPosition.z
+        )
+        spawnedSphere.mesh.visible = true
+    }
 
-  
-  // Update objects
-  sphere.rotation.y = elapsedTime * 0.1
-  sphere.rotation.x = elapsedTime * 0.15
+    // Update objects
+    sphere.rotation.y = elapsedTime * 0.1
+    sphere.rotation.x = elapsedTime * 0.15
 
-  sphere2.position.x = Math.sin(elapsedTime)
-  sphere2.position.y = Math.cos(elapsedTime)
-  sphere2.position.z = -elapsedTime * 0.1
-  console.log(areIntersecting(sphere, sphere2))
+    sphere2.position.x = Math.sin(elapsedTime)
+    sphere2.position.y = Math.cos(elapsedTime)
 
-  // Update controls
-  controls.update()
+    const intersects = areIntersecting(sphere, sphere2)
 
+    if (intersects) {
+        if (wasOverlapping) {
 
+        } else {
+            console.log('start overlap')
+            wasOverlapping = true
+            // sphere.material.color.setHex(0x00ffff)
+            spawnChild()
+        }
 
-  // Render
-  renderer.render(scene, camera)
+    } else {
+        if (wasOverlapping) {
+            wasOverlapping = false
+            // sphere.material.color.setHex(0xff00ff)
+            console.log('finish overlap')
+        } else {
 
-  // Call tick again on the next frame
-  if (elapsedTime < 10) {
-  window.requestAnimationFrame(tick) }
+        }
+
+    }
+
+    // Update controls
+    controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+
 }
-
 
 tick()
